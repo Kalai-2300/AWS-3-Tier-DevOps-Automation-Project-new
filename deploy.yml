@@ -54,4 +54,4 @@ jobs:
             docker run -d -p 5000:5000 --name backend-container ${{ env.DOCKER_HUB_USER }}/my-backend:latest
             
             # Run Frontend Container on Port 80
-            docker run -d -p 80:80 --name frontend-container ${{ env.DOCKER_HUB_USER }}/my-frontend:latest
+            docker run -d -p 80:80 --restart always --name frontend-container ${{ env.DOCKER_HUB_USER }}/my-frontend:latest
