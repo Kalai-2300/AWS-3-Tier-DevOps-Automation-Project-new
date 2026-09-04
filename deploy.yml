@@ -1,0 +1,57 @@
+name: 3-Tier DevOps Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_HUB_USER: "kalai2300"
+  EC2_PUBLIC_IP: "your-aws-ec2-public-ip"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout Code from GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: "kalai2300" 
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      # 3. Build Frontend and Backend Docker Images
+      - name: Build Docker Images
+        run: |
+          docker build -t ${{ env.DOCKER_HUB_USER }}/my-app:latest .
+
+      # 4. Push Images to Docker Hub
+      - name: Push Docker Images
+        run: |
+          docker push ${{ env.DOCKER_HUB_USER }}/my-app:latest .
+          
+      # 5. SSH into AWS EC2 and Deploy Both Containers
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Stop and remove old containers if running
+            docker stop frontend-container backend-container || true
+            docker rm frontend-container backend-container || true
+            
+            # Pull latest images from Docker Hub
+            docker pull ${{ env.DOCKER_HUB_USER }}/my-frontend:latest
+            docker pull ${{ env.DOCKER_HUB_USER }}/my-backend:latest
+            
+            # Run Backend Container on Port 5000
+            docker run -d -p 5000:5000 --name backend-container ${{ env.DOCKER_HUB_USER }}/my-backend:latest
+            
+            # Run Frontend Container on Port 80
+            docker run -d -p 80:80 --name frontend-container ${{ env.DOCKER_HUB_USER }}/my-frontend:latest
