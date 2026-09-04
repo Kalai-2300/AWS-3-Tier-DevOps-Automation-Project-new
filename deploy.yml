@@ -24,7 +24,7 @@ jobs:
           username: "kalai2300" 
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # 3. Build Frontend and Backend Docker Images
+      # 3. New Docker Build pipeline 
       - name: Build Docker Images
         run: |
           docker build -t ${{ env.DOCKER_HUB_USER }}/my-app:latest .
