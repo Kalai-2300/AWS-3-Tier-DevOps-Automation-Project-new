@@ -27,12 +27,12 @@ jobs:
       # 3. New Docker Build pipeline 
       - name: Build Docker Images
         run: |
-          docker build -t ${{ env.DOCKER_HUB_USER }}/my-app:latest .
+          docker build -t kalai2300/my-app:latest .
 
       # 4. Push Images to Docker Hub
       - name: Push Docker Images
         run: |
-          docker push ${{ env.DOCKER_HUB_USER }}/my-app:latest .
+          docker push kalai2300/my-app:latest
           
       # 5. SSH into AWS EC2 and Deploy Both Containers
       - name: Deploy to AWS EC2 via SSH
